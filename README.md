@@ -165,19 +165,30 @@ The application includes automated test suites covering authentication, role iso
 
 ---
 
-## Production Deployment Guidelines
+## Production Deployment Guidelines (Render & MongoDB Atlas)
 
-1. **Environment Variables:**
-   - Set `NODE_ENV=production`.
-   - Set a strong, randomly generated `JWT_SECRET` (e.g. 64-character hex string).
-   - Set `MONGODB_URI` pointing to your secured production MongoDB Atlas cluster.
-   - Do NOT commit `.env` files to source control.
-2. **Build Client Bundle:**
-   ```bash
-   npm run build:client
-   ```
-   The compiled assets will be placed in `Client/dist`. Ensure `VITE_ENABLE_DEV_DEMO_LOGINS` is `false` (default) so no test credentials exist in the client bundle.
-3. **Run Production Server:**
-   ```bash
-   npm --prefix Server start
-   ```
+### 1. Backend Service Configuration (Render Web Service)
+- **Environment:** Node
+- **Build Command:** `npm --prefix Server install`
+- **Start Command:** `npm --prefix Server start`
+- **Environment Variables:**
+  - `NODE_ENV`: `production`
+  - `PORT`: `5000` (or Render's automatic `$PORT`)
+  - `MONGODB_URI`: Your production MongoDB Atlas SRV connection string: `mongodb+srv://<username>:<password>@cluster0.mongodb.net/imovies?retryWrites=true&w=majority` *(Note: Localhost is strictly prohibited in production)*
+  - `JWT_SECRET`: A high-entropy random key for signing JWT tokens
+  - `CLIENT_URL`: The origin URL of your deployed frontend (e.g., `https://imovies-client.onrender.com`). Supports comma-separated origins.
+  - `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`: Credentials for administrative provisioning.
+
+### 2. Frontend Configuration (Render Static Site or Vercel)
+- **Build Command:** `npm --prefix Client install && npm --prefix Client run build`
+- **Publish Directory:** `Client/dist`
+- **Environment Variables:**
+  - `VITE_API_URL`: The deployed Render backend API URL (e.g., `https://your-imovies-backend.onrender.com/api` or `https://your-imovies-backend.onrender.com`).
+  - `VITE_ENABLE_DEV_DEMO_LOGINS`: `false` (prevents exposing demo login shortcuts in client bundle).
+
+### 3. Alternative Unified Deployment (Single Render Web Service)
+The Express backend is configured to automatically serve `Client/dist` static assets when `NODE_ENV=production`. If deploying as a single unified service:
+- **Build Command:** `npm run install:all && npm run build:client`
+- **Start Command:** `npm --prefix Server start`
+- The frontend will be served directly by Express and communicate over `/api` on the same origin with zero cross-origin configuration required.
+

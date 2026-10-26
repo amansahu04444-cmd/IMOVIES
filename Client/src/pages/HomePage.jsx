@@ -39,7 +39,15 @@ const HomePage = () => {
       }
     } catch (err) {
       console.error('Failed to load movies:', err);
-      setError('Could not connect to cinema database. Please ensure backend is running.');
+      if (err.isNetworkError || err.status === 0) {
+        setError('Unable to connect to cinema server. Please verify backend is running and CORS is configured.');
+      } else if (err.status === 404) {
+        setError(err.message || 'Movie API endpoint not found (404). Please verify backend URL configuration.');
+      } else if (err.status === 503 || err.errorType === 'DATABASE_UNAVAILABLE' || err.errorType === 'DATABASE_ERROR') {
+        setError('Could not connect to cinema database. Please ensure backend is running.');
+      } else {
+        setError(err.message || 'Failed to load movies. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -150,18 +158,37 @@ const HomePage = () => {
       {/* Error state */}
       {error && (
         <div style={{
-          padding: '1.5rem',
+          padding: '1.2rem 1.5rem',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.3)',
           borderRadius: 'var(--radius-md)',
           color: '#f87171',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.8rem',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
           marginBottom: '2rem'
         }}>
-          <AlertCircle size={20} />
-          <span>{error}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <AlertCircle size={20} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={fetchMovies}
+            style={{
+              padding: '6px 16px',
+              backgroundColor: '#e50914',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.85rem'
+            }}
+          >
+            Retry
+          </button>
         </div>
       )}
 

@@ -25,6 +25,7 @@ const SeatSelectionPage = () => {
   const [loading, setLoading] = useState(true);
   const [bookingInProgress, setBookingInProgress] = useState(false);
   const [conflictError, setConflictError] = useState(null);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
     fetchSeats();
@@ -33,12 +34,20 @@ const SeatSelectionPage = () => {
   const fetchSeats = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const data = await api.getShowSeats(id);
       if (data.success) {
         setShowData(data);
       }
     } catch (err) {
       console.error('Failed to load seat layout:', err);
+      if (err.isNetworkError || err.status === 0) {
+        setLoadError('Unable to connect to cinema server. Please verify backend is running and CORS is configured.');
+      } else if (err.status === 404) {
+        setLoadError('Screening layout endpoint not found (404). Please verify backend route configuration.');
+      } else {
+        setLoadError(err.message || 'Failed to load cinema seat layout. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -143,9 +152,17 @@ const SeatSelectionPage = () => {
     return (
       <div className="container" style={{ paddingTop: '4rem', textAlign: 'center' }}>
         <h2>Show Unavailable</h2>
-        <button onClick={() => navigate('/')} className="btn-primary" style={{ marginTop: '1rem' }}>
-          Back to Movies
-        </button>
+        <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
+          {loadError || 'The requested screening layout could not be loaded.'}
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <button onClick={fetchSeats} className="btn-primary" style={{ backgroundColor: '#e50914' }}>
+            Retry
+          </button>
+          <button onClick={() => navigate('/')} className="btn-secondary">
+            Back to Movies
+          </button>
+        </div>
       </div>
     );
   }

@@ -143,6 +143,11 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Error loading admin console data:', err);
+      if (err.isNetworkError || err.status === 0) {
+        setErrorMessage('Unable to connect to cinema server. Please verify backend is running and CORS is configured.');
+      } else {
+        setErrorMessage(err.message || 'Error loading cinema data. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

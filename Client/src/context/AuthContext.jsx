@@ -26,8 +26,12 @@ export const AuthProvider = ({ children }) => {
           logout();
         }
       } catch (err) {
-        console.warn('Session expired or invalid token:', err.message);
-        logout();
+        console.warn('Session verification notice:', err.message);
+        // Only clear credentials if the token is genuinely rejected (401 or 403)
+        // Keep credentials intact if the backend is temporarily unreachable
+        if (err.status === 401 || err.status === 403) {
+          logout();
+        }
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,40 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Normalize and validate API Base URL
+const resolveBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    let cleaned = envUrl.trim().replace(/\/+$/, '');
+    // If it's an absolute URL without /api at the end, append /api
+    if (/^https?:\/\//i.test(cleaned)) {
+      if (!cleaned.endsWith('/api')) {
+        cleaned = `${cleaned}/api`;
+      }
+      return cleaned;
+    }
+    // Relative path (e.g. /api)
+    return cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+  }
+
+  // In production builds or when running on a deployed host, default to the deployed Render backend
+  if (import.meta.env.PROD || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
+    return 'https://imovies-bi04.onrender.com/api';
+  }
+
+  return '/api';
+};
+
+
+const BASE_URL = resolveBaseUrl();
+
+// Diagnostic warning for misconfigured deployment
+if (typeof window !== 'undefined') {
+  const hostname = window.location.hostname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  if (!isLocalhost && BASE_URL.includes('localhost')) {
+    console.warn(
+      `[IMovies API Warning] Deployed frontend on "${hostname}" is calling localhost ("${BASE_URL}"). Ensure VITE_API_URL is configured to your Render backend in your deployment settings.`
+    );
+  }
+}
 
 const request = async (endpoint, options = {}) => {
   const token = localStorage.getItem('imovies_token');
@@ -20,8 +56,21 @@ const request = async (endpoint, options = {}) => {
     config.body = JSON.stringify(options.body);
   }
 
-  const url = `${BASE_URL}${endpoint}`;
-  const response = await fetch(url, config);
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${BASE_URL}${cleanEndpoint}`;
+
+  let response;
+  try {
+    response = await fetch(url, config);
+  } catch (networkErr) {
+    const error = new Error(
+      `Unable to reach cinema server at ${url}. Please verify the backend is running and CORS is configured.`
+    );
+    error.isNetworkError = true;
+    error.status = 0;
+    error.originalError = networkErr;
+    throw error;
+  }
 
   let data;
   try {
@@ -31,14 +80,26 @@ const request = async (endpoint, options = {}) => {
   }
 
   if (!response.ok) {
-    const error = new Error(data.message || `Request failed with status ${response.status}`);
+    let fallbackMsg = `Request failed with status ${response.status}`;
+    if (response.status === 404) {
+      fallbackMsg = `API endpoint not found (404) at ${url}. Please verify backend route configuration.`;
+    } else if (response.status === 503) {
+      fallbackMsg = 'Could not connect to cinema database. Please ensure backend is running.';
+    } else if (response.status === 500) {
+      fallbackMsg = 'Internal server error occurred on cinema backend.';
+    }
+
+    const message = data.message || fallbackMsg;
+    const error = new Error(message);
     error.status = response.status;
     error.data = data;
+    error.errorType = data.errorType;
     throw error;
   }
 
   return data;
 };
+
 
 export const api = {
   // Auth
@@ -85,6 +146,7 @@ export const api = {
   getShowById: (id) => request(`/shows/${id}`),
   getShowSeats: (id) => request(`/shows/${id}/seats`),
   createShow: (data) => request('/shows', { method: 'POST', body: data }),
+  updateShow: (id, data) => request(`/shows/${id}`, { method: 'PUT', body: data }),
   deleteShow: (id) => request(`/shows/${id}`, { method: 'DELETE' }),
 
   // Bookings
@@ -103,5 +165,8 @@ export const api = {
 
   // Reviews
   getMovieReviews: (movieId) => request(`/reviews/movie/${movieId}`),
-  createReview: (data) => request('/reviews', { method: 'POST', body: data })
+  createReview: (data) => request('/reviews', { method: 'POST', body: data }),
+
+  // Health
+  getHealth: () => request('/health')
 };
