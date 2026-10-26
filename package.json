@@ -1,0 +1,32 @@
+{
+  "name": "imovies-workspace",
+  "version": "1.0.0",
+  "description": "IMovies MERN Movie Ticket Booking Application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix Server run dev",
+    "dev:client": "npm --prefix Client run dev",
+    "build:client": "npm --prefix Client run build",
+    "test:server": "npm --prefix Server test",
+    "test:auth": "npm --prefix Server run test:auth",
+    "test:concurrency": "npm --prefix Server run test:concurrency",
+    "test:admin": "npm --prefix Server run test:admin",
+    "seed": "npm --prefix Server run seed",
+    "setup:admin": "node Server/scripts/initAdmin.js",
+    "install:all": "npm --prefix Server install && npm --prefix Client install"
+  },
+  "keywords": [
+    "imovies",
+    "mern",
+    "movie-booking",
+    "react",
+    "node",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

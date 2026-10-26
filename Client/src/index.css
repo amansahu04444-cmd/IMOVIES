@@ -1,0 +1,190 @@
+:root {
+  --bg-primary: #0a0c13;
+  --bg-secondary: #121624;
+  --bg-surface: #181d30;
+  --bg-surface-glass: rgba(24, 29, 48, 0.7);
+  --bg-surface-hover: #222944;
+  
+  --primary: #e50914;
+  --primary-glow: rgba(229, 9, 20, 0.35);
+  --primary-hover: #ff1f2d;
+  --secondary: #f5a623;
+  --secondary-glow: rgba(245, 166, 35, 0.3);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(229, 9, 20, 0.4);
+  
+  --seat-available: #222944;
+  --seat-selected: #e50914;
+  --seat-booked: #333a52;
+  --seat-vip: #8b5cf6;
+  --seat-premium: #3b82f6;
+  --seat-standard: #10b981;
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --font-display: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.5;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(229, 9, 20, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+  border: none;
+  outline: none;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+  background: linear-gradient(135deg, #ff1f2d 0%, #d40813 100%);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Container */
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #27314d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4970;
+}
+
+/* Screen Curve (Cinema Experience) */
+.cinema-screen-container {
+  perspective: 400px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.cinema-screen {
+  height: 12px;
+  width: 80%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+  transform: rotateX(-15deg);
+}
+
+.cinema-screen-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  margin-top: 1rem;
+}
+
+/* Pulse animation */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(229, 9, 20, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite;
+}

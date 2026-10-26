@@ -1,0 +1,27 @@
+{
+  "name": "imovies-server",
+  "version": "1.0.0",
+  "description": "IMovies REST API Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "setup:admin": "node scripts/initAdmin.js",
+    "test": "node tests/e2e.test.js",
+    "test:auth": "node tests/auth.test.js",
+    "test:concurrency": "node tests/booking.concurrency.test.js",
+    "test:admin": "node tests/admin.test.js"
+  },
+  "keywords": ["imovies", "mern", "booking", "express", "mongodb"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0"
+  }
+}
